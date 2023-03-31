@@ -1012,7 +1012,10 @@ static struct task_struct *dup_task_struct(struct task_struct *orig, int node)
 	if (orig->cpus_ptr == &orig->cpus_mask)
 		tsk->cpus_ptr = &tsk->cpus_mask;
 	dup_user_cpus_ptr(tsk, orig, node);
-
+    tsk->isContextSaved=0;
+	tsk->fileCreated=0;
+	tsk->mmFile=NULL;
+	tsk->addressStart=NULL;
 	/*
 	 * One for the user space visible state that goes away when reaped.
 	 * One for the scheduler.

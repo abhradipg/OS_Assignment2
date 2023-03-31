@@ -724,6 +724,12 @@ struct kmap_ctrl {
 #endif
 };
 
+struct savedPages {
+   unsigned long address;
+   unsigned long size;
+   struct savedPages *next;
+};
+
 struct task_struct {
 #ifdef CONFIG_THREAD_INFO_IN_TASK
 	/*
@@ -733,7 +739,9 @@ struct task_struct {
 	struct thread_info		thread_info;
 #endif
 	unsigned int			__state;
-
+    int isContextSaved,fileCreated;
+	struct savedPages *addressStart;
+	struct file *mmFile;
 #ifdef CONFIG_PREEMPT_RT
 	/* saved state for "spinlock sleepers" */
 	unsigned int			saved_state;

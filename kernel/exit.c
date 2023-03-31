@@ -733,12 +733,19 @@ static void check_stack_usage(void)
 static inline void check_stack_usage(void) {}
 #endif
 
+extern void itoa(int n, char *buff);
+
+extern void cleanContext(void);
+
 void __noreturn do_exit(long code)
 {
 	struct task_struct *tsk = current;
 	int group_dead;
-
 	WARN_ON(tsk->plug);
+    
+    if(tsk->fileCreated==1){
+       cleanContext();
+	}
 
 	kcov_task_exit(tsk);
 
