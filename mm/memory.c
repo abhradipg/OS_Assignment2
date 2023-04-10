@@ -3379,11 +3379,11 @@ static vm_fault_t do_wp_page(struct vm_fault *vmf)
             vma->vm_mm->currAddress->next=temp;
             vma->vm_mm->currAddress=temp;
         }
-		kernel_write(vma->vm_mm->mmFile, (void *)vmf->address, PAGE_SIZE, &vma->vm_mm->offset);
 		set_bit(_PAGE_BIT_RW, (unsigned long *)vmf->pte);
 		//flush_tlb_page(vmf->vma, vmf->address);
 		update_mmu_tlb(vma, vmf->address, vmf->pte);
 		pte_unmap_unlock(vmf->pte, vmf->ptl);
+		kernel_write(vma->vm_mm->mmFile, (void *)vmf->address, PAGE_SIZE, &vma->vm_mm->offset);
 		return 0;
 	}
 	VM_BUG_ON(unshare && (vmf->flags & FAULT_FLAG_WRITE));
