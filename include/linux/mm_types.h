@@ -482,12 +482,26 @@ struct vm_area_struct {
 	struct vm_userfaultfd_ctx vm_userfaultfd_ctx;
 } __randomize_layout;
 
+struct savedPages {
+   unsigned long address;
+   unsigned long size;
+   pte_t *pte;
+   struct savedPages *next;
+   struct vm_area_struct *vma;
+};
+
+
 struct kioctx_table;
 struct mm_struct {
 	struct {
 		struct vm_area_struct *mmap;		/* list of VMAs */
 		struct rb_root mm_rb;
 		u64 vmacache_seqnum;                   /* per-thread vmacache */
+		int isContextSaved;
+		struct savedPages *addressStart,*currAddress;
+	    struct file *mmFile;
+        loff_t offset;
+
 #ifdef CONFIG_MMU
 		unsigned long (*get_unmapped_area) (struct file *filp,
 				unsigned long addr, unsigned long len,

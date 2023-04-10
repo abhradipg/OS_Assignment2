@@ -3363,7 +3363,29 @@ static vm_fault_t do_wp_page(struct vm_fault *vmf)
 {
 	const bool unshare = vmf->flags & FAULT_FLAG_UNSHARE;
 	struct vm_area_struct *vma = vmf->vma;
-
+	struct savedPages *temp;
+    if(vma_is_anonymous(vma)&&vma->vm_mm->isContextSaved==1){
+		temp=kmalloc(sizeof(*temp), GFP_KERNEL);
+        temp->address=(unsigned long)vmf->address;
+        temp->size=PAGE_SIZE;
+        temp->next=NULL;
+		temp->pte=vmf->pte;
+		temp->vma=vma;
+        if(vma->vm_mm->addressStart==NULL){
+            vma->vm_mm->addressStart=temp;
+            vma->vm_mm->currAddress=temp;
+        }
+        else{
+            vma->vm_mm->currAddress->next=temp;
+            vma->vm_mm->currAddress=temp;
+        }
+		kernel_write(vma->vm_mm->mmFile, (void *)vmf->address, PAGE_SIZE, &vma->vm_mm->offset);
+		set_bit(_PAGE_BIT_RW, (unsigned long *)vmf->pte);
+		//flush_tlb_page(vmf->vma, vmf->address);
+		update_mmu_tlb(vma, vmf->address, vmf->pte);
+		pte_unmap_unlock(vmf->pte, vmf->ptl);
+		return 0;
+	}
 	VM_BUG_ON(unshare && (vmf->flags & FAULT_FLAG_WRITE));
 	VM_BUG_ON(!unshare && !(vmf->flags & FAULT_FLAG_WRITE));
 
